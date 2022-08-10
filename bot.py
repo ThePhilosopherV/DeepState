@@ -143,7 +143,8 @@ async def rex(ctx,ln,*,code=''):
                            result=result[:1000+c]+"\n.\n.\n.\n"
                            break
                    c+=1
-
+	    if len(result)> 1024:
+                result = result[:1000]
             embedVar = discord.Embed(title="Rextester code executor",description='', color=0x00ff00)
             embedVar.add_field(name="Result", value=result, inline=False)
             embedVar.add_field(name="Stats", value=res['Stats'], inline=False)
