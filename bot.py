@@ -22,7 +22,8 @@ async def on_ready():
 async def help(ctx):
     helpstr="""
 rex : execute code, type 'rex list' for language numbers
-roll : dice roll game"""
+roll : dice roll game
+meme : random meme generator from reddit.com/r/dankmemes/"""
     made="""Made by the Philospher
 Link to source code: https://github.com/ThePhilosopherV/DeepState """
     
@@ -31,7 +32,15 @@ Link to source code: https://github.com/ThePhilosopherV/DeepState """
     embedVar.add_field(name="Source", value=made, inline=False)
     await ctx.send(embed=embedVar)
     
+@bot.command(pass_context=True)
+async def meme(ctx):
+    embed = discord.Embed(title="", description="")
 
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
+            res = await r.json()
+            embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
+            await ctx.send(embed=embed)
     
 @bot.command()
 async def roll(ctx, dice: str):
@@ -123,30 +132,40 @@ async def rex(ctx,ln,*,code=''):
 }
 
     async with aiohttp.ClientSession() as cs:
-
+     
         async with cs.post(url,data=data) as r:
-             
+     
+         
             #print(r.text())
             res = json.loads(await r.text())
             #res = res['Result']+res['Stats']
             if res['Errors'] != None:
+                if len(res['Errors']) > 6000:
+                    res['Errors']=res['Errors'][:1000]
                 embedVar = discord.Embed(title="Rextester code executor",description='', color=0x00ff00)
                 embedVar.add_field(name="Result", value=res['Errors'], inline=False)
                 embedVar.add_field(name="Stats", value=res['Stats'], inline=False)
                 await ctx.send(embed=embedVar)
                 return
+             
             result =res['Result']
-            if len(result) > 1000:
+            if len(result) > 1024:
+                
                 c=0
                 while 1:
-                   if  result[1000+c]=='\n':
-                           result=result[:1000+c]+"\n.\n.\n.\n"
+                    
+                   if  result[900+c]=='\n':
+                           result=result[:900+c]+"\n.\n.\n.\n"
                            break
+                   if c==100:
+                      result= result[:1000]
+                      break
                    c+=1
-	    if len(result)> 1024:
-                result = result[:1000]
-	    if result=='':
-                result='‎‎ \n' 
+
+            elif result =='' or result.isspace():# or result== "\n" or result=="\r" or result == "\t":
+                result='‎‎ \n'
+                
+            
             embedVar = discord.Embed(title="Rextester code executor",description='', color=0x00ff00)
             embedVar.add_field(name="Result", value=result, inline=False)
             embedVar.add_field(name="Stats", value=res['Stats'], inline=False)
