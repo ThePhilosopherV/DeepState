@@ -23,7 +23,8 @@ async def help(ctx):
     helpstr="""
 rex : execute code, type 'rex list' for language numbers
 roll : dice roll game
-meme : random meme generator from reddit.com/r/dankmemes/"""
+meme : random meme generator from reddit.com/r/dankmemes/
+quote : random quote generator"""
     made="""Made by the Philospher
 Link to source code: https://github.com/ThePhilosopherV/DeepState """
     
@@ -41,6 +42,17 @@ async def meme(ctx):
             res = await r.json()
             embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
             await ctx.send(embed=embed)
+
+@bot.command(pass_context=True)
+async def quote(ctx):
+    embed = discord.Embed(title="", description="")
+
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://api.quotable.io/random') as r:
+            res = await r.json()
+            embedVar = discord.Embed(title="",description=res['content']+'\n~'+res['author'], color=0x00ff90)
+            await ctx.send(embed=embedVar)
+        
     
 @bot.command()
 async def roll(ctx, dice: str):
