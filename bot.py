@@ -220,4 +220,4 @@ async def rex(ctx,ln,*,code=''):
 
 
 
-bot.run('MTAwNjgzNzM2Mzg0NDA3MTUyNA.GUzisa.uMFlkTGv9Hg2XB-wHgG4hA1qCiRIp23zdtYxuU')
+bot.run('token')
