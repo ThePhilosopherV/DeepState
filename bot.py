@@ -7,7 +7,7 @@ description = ""
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='ds ', description=description, intents=intents)
+bot = commands.Bot(command_prefix='!', description=description, intents=intents)
 bot.remove_command('help')
 
 @bot.event
@@ -16,15 +16,26 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    await bot.change_presence(activity=discord.Game(name="Chess"))
+    await bot.change_presence(activity=discord.Game(name="!help"))
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+        pass
 
 @bot.command()
 async def help(ctx):
     helpstr="""
 rex : execute code, type 'rex list' for language numbers
+
 roll : dice roll game
+
 meme : random meme generator from reddit.com/r/dankmemes/
-quote : random quote generator"""
+
+quote : random quote generator
+
+pick : pick a random element from a list
+"""
     made="""Made by the Philospher
 Link to source code: https://github.com/ThePhilosopherV/DeepState """
     
@@ -32,6 +43,21 @@ Link to source code: https://github.com/ThePhilosopherV/DeepState """
     embedVar.add_field(name="Commands", value=helpstr, inline=False)
     embedVar.add_field(name="Source", value=made, inline=False)
     await ctx.send(embed=embedVar)
+
+
+@bot.command(pass_context=True)
+async def pick(ctx,*names):
+    if len(names)<=1  :
+        r = "List must not be empty and should contain at least two elements\nSyntax: !pick dog cat squirrel"
+        embed = discord.Embed(title="", description=r,color=0xff5733)
+        await ctx.send(embed=embed)
+        return
+    r = random.choice(names)
+
+    embed = discord.Embed(title="", description=r,color=0xff5733)
+    await ctx.send(embed=embed)
+    
+
     
 @bot.command(pass_context=True)
 async def meme(ctx):
@@ -54,14 +80,17 @@ async def quote(ctx):
             await ctx.send(embed=embedVar)
         
     
-@bot.command()
-async def roll(ctx, dice: str):
+@bot.command(pass_context=True)
+async def roll(ctx, dice: str=''):
     
     """Rolls a dice in NdN format."""
+    if dice=='':
+        await ctx.send('Format has to be in NdN!\nSyntax: !roll 3d8')
+        return
     try:
         rolls, limit = map(int, dice.split('d'))
     except Exception:
-        await ctx.send('Format has to be in NdN!')
+        await ctx.send('Format has to be in NdN!\nSyntax: !roll 3d8')
         return
 
     result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
@@ -142,11 +171,12 @@ async def rex(ctx,ln,*,code=''):
 	"IsInEditMode": "False",
 	"IsLive": "False"
 }
-
-    async with aiohttp.ClientSession() as cs:
+    try:
+        async with aiohttp.ClientSession() as cs:
      
-        async with cs.post(url,data=data) as r:
+         async with cs.post(url,data=data) as r:
      
+            
          
             #print(r.text())
             res = json.loads(await r.text())
@@ -179,10 +209,14 @@ async def rex(ctx,ln,*,code=''):
                 
             
             embedVar = discord.Embed(title="Rextester code executor",description='', color=0x00ff00)
-            embedVar.add_field(name="Result", value=result, inline=False)
-            embedVar.add_field(name="Stats", value=res['Stats'], inline=False)
+            embedVar.add_field(name="Result:", value=result, inline=False)
+            embedVar.add_field(name="Stats:", value=res['Stats'], inline=False)
             
             await ctx.send(embed=embedVar)
+    except TimeoutError:
+            embedVar = discord.Embed(title="",description='Timeout Error', color=0x00ff00)
+            await ctx.send(embed=embedVar)
+            return
 
 
 
