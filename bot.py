@@ -37,6 +37,8 @@ meme : random meme generator from reddit.com/r/dankmemes/
 quote : random quote generator
 
 pick : pick a random element from a list
+
+chan: grab last thread from 4chan /b  board 
 """
     made="""Made by the Philospher
 Link to source code: https://github.com/ThePhilosopherV/DeepState """
