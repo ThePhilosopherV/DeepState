@@ -1,6 +1,8 @@
 import discord,aiohttp,json
 from discord.ext import commands
 import random
+import html2text
+from datetime import datetime
 
 description = ""
 
@@ -56,8 +58,45 @@ async def pick(ctx,*names):
 
     embed = discord.Embed(title="", description=r,color=0xff5733)
     await ctx.send(embed=embed)
-    
 
+    
+@bot.command(pass_context=True)
+async def chan(ctx):
+    embed = discord.Embed(title="", description="")
+
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://a.4cdn.org/b/1.json') as r:
+            r = await r.json()
+            #print(r['threads'][0]['posts'][0])
+            no = r['threads'][0]['posts'][0]['no']
+            while 1:
+                try:
+                    com = r['threads'][0]['posts'][0]['com']
+                    break
+                except:
+                    continue
+            ext = r['threads'][0]['posts'][0]['ext']
+            time = r['threads'][0]['posts'][0]['time']
+            tim=r['threads'][0]['posts'][0]['tim']
+            t = datetime.fromtimestamp(int(time))
+
+            thumb = "https://i.4cdn.org/b/"+ str(tim) +'s.jpg'
+            thread = "https://boards.4chan.org/b/thread/"+str(no)
+            
+
+
+##            print(thread)
+##            print(thumb)
+##            print(t)
+            com = html2text.html2text(com).rstrip()
+
+            embed = discord.Embed(title = t, description = com+'\n'+thread,color = discord.Colour.blue())
+            #embed.add_field(name="", value=com, inline=False)
+            embed.set_image(url = thumb)
+            
+##            evar = embed.set_image(url=thumb)
+##            evar.add_field(name="", value=com, inline=False)
+            await ctx.send(embed=embed)
     
 @bot.command(pass_context=True)
 async def meme(ctx):
