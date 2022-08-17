@@ -38,7 +38,7 @@ quote : random quote generator
 
 pick : pick a random element from a list
 
-chan: grab last thread from 4chan   board 
+chan: grab last thread from 4chan board 
 """
     made="""Made by the Philospher
 Link to source code: https://github.com/ThePhilosopherV/DeepState """
@@ -63,8 +63,11 @@ async def pick(ctx,*names):
 
     
 @bot.command(pass_context=True)
-async def chan(ctx,board:str):
-    
+async def chan(ctx,board:str=''):
+    if board == '' or board.isspace():
+        embed = discord.Embed(title = "Grab the last 4chan board post", description ='!chan board-name' ,color = discord.Colour.blue())
+        await ctx.send(embed=embed)
+        return
     async with aiohttp.ClientSession() as cs:
         async with cs.get('https://a.4cdn.org/boards.json') as r:
             r = await r.json()
